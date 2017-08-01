@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="js/libs/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://www.gstatic.com/firebasejs/3.6.1/firebase.js"></script>
+<script src="js/libs/jquery-3.1.1.min.js"></script>
+<script src="js/libs/require.js"></script>
+<script src="js/libs/bootstrap/js/bootstrap.min.js"></script>
+	<script>
+		require(["js/game.js","js/utils/text.js"],function(Game, Text){
+			$("#playerNameModal").modal('show');
+			$("#restartGameBtn").click(function() {location.reload();});
+			$("#beginGameBtn").click(function(){
+				createGame($("#playerNameInput").val());
+			});
+			var keys = Object.keys(Text);
+			for(var key in keys) {
+				$("#" + keys[key]).text(Text[keys[key]]);
+			}
+			
+			function createGame(playerName) {
+				var game = new Game(playerName);
+				game.createField("fieldContainer");
+				game.createFieldTiles();
+				game.kickoffs.addKickoffTokens();
+				game.readUserInput();
+				game.database.initializeDatabase().then(function(response) {
+					game.database.getHighScores();
+				});
+			}
+		});
+	</script>
+</head>
+<body>
+<div id="uiContainer" class="uiContainer">
+	<div id="leftColumn" class="column">
+		<button id="restartGameBtn" class="helpBtns btn btn-default">Restart Game</button>
+		<div id="gameStatsDiv" class="sidePanels roundedPanels">
+			<div class="sidePanelLabel">Game Stats</div>
+			<div id="gameStatsContainer" class="sidePanelContainer">	
+				<table class = "table table-striped">
+					<tbody>
+						<tr class="boxscoreBoldHeadings">
+							<td>Total Yards</td>
+							<td id="totalYardsCell"></td>
+						</tr>
+						<tr class="boxscoreBoldHeadings">
+							<td>Passing</td>
+							<td id="passingYardsCell"></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings" >Comp Atts</td>
+							<td id="compAttsCell" ></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings">Yards Per Pass</td>
+							<td id="yppCell" ></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings">Touchdowns</td>
+							<td id="passingTdsCell"></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings">Interceptions</td>
+							<td id="interceptionsCell"></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings">Sacks</td>
+							<td id="sacksCell"></td>
+						</tr>
+						<tr class="boxscoreBoldHeadings">
+							<td>Rushing</td>
+							<td id="rushingYardsCell"></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings">Rushing Atts</td>
+							<td id="rushingAttsCell"></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings">Yards Per Rush</td>
+							<td id="yprCell"></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings">Touchdowns</td>
+							<td id="rushingTdsCell"></td>
+						</tr>
+						<tr class="boxscoreBoldHeadings">
+							<td>Kick Returns</td>
+							<td id="kickReturnYardsCell"></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings" >Attempts</td>
+							<td id="kickReturnsCell"></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings" >Yards Per Return</td>
+							<td id="averageReturnCell"></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings" >Long</td>
+							<td id="longReturnCell"></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings">Touchdowns</td>
+							<td id="kickReturnTdsCell"></td>
+						</tr>
+						<tr class="boxscoreBoldHeadings">
+							<td>1st Downs</td>
+							<td id="firstDownsCell"></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings">By Rushing</td>
+							<td id="byRushingCell"></td>
+						</tr>
+						<tr>
+							<td class="boxscoreHeadings">By Passing</td>
+							<td id="byPassingCell"></td>
+						</tr>
+						<tr class="boxscoreBoldHeadings">
+							<td>3rd Downs</td>
+							<td id="thirdDownsCell"></td>
+						</tr>
+						<tr class="boxscoreBoldHeadings">
+							<td>4th Downs</td>
+							<td id="fourthDownsCell"></td>
+						</tr>
+				   </tbody>
+				   
+				</table>
+			</div>
+		</div>
+		<button id="showControlsBtn" class="helpBtns btn btn-default" data-target = "#controlsModal" data-toggle = "modal">Controls</button>
+	</div>
+	<div id="centerColumn" class="column">
+		<table id="scoreBoard" class="roundedPanels">
+		  <tr>
+			<th>
+				<div class="cellStyling scoreLabels" style="width:180px;">
+					<p id="playerNameScoreboardLabel" style="font-size: 22px;letter-spacing: 2px;"></p>
+					<div id="playerScoreLabels" class="scoreValues"></div>
+				</div>
+			</th>
+			<th>
+				<div class="cellStyling" style="width:260px;">
+					<div id="timeLabel" style="font-size:45px; font-weight:bolder; letter-spacing:4px;"></div>
+				</div>	
+			</th>
+			<th>
+				<div class="cellStyling scoreLabels" style="width:180px;">
+					<p style="font-size: 20px;letter-spacing: 2px;">Computer</p>
+					<div id="computerScoreLabel" class="scoreValues"></div>
+				</div>	
+			</th>
+		  </tr>
+		  <tr>
+			<td>
+				<div class="cellStyling scoreLabels">
+					<p>Down</p>
+					<div id="downLabel" class="scoreValues"></div>
+				</div>
+			</td>
+			<td>
+				<div class="cellStyling scoreLabels">
+					<p>To Go</p>
+					<div id="distanceLabel" class="scoreValues"></div>
+				</div>	
+			</td>
+			<td>
+				<div class="cellStyling scoreLabels">
+					<p>Ball On</p>
+					<div id="yardLineLabel" class="scoreValues"></div>
+				</div>	
+			</td>
+		  </tr>
+		</table>
+		<div id="fieldContainer" style="margin:10px"></div>
+		<div id="currentPlayDiv" style="display:flex; font-size:25px; font-weight:bolder; margin-top:20px; margin-left:10px;">
+			<div>Current Play:&nbsp</div>
+			<div id="currentPlay"></div>
+		</div>
+		<div id="playResultDiv" style="display:flex; font-size:25px; font-weight:bolder; margin-top:20px; margin-left:10px;">
+			<div>Play Result:&nbsp</div>
+			<div id="playResult"></div>
+		</div>
+	</div>
+	<div id="rightColumn" class="column">
+		<button id="showHighScoreBtn" class="helpBtns btn btn-default" data-target = "#highScoresModal" data-toggle = "modal">High Scores</button>
+		<div id="playByPlayDiv" class="sidePanels roundedPanels">
+			<div class="sidePanelLabel">Play by Play</div>
+			<div id="playByPlayContainer" class="sidePanelContainer">
+				<table id="playByPlayTable" class="table table-striped">
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+		<button id="showRulesBtn" class="helpBtns btn btn-default" data-target = "#rulesModal" data-toggle = "modal">How To Play</button>
+	</div>
+	<div class = "modal fade" id = "controlsModal" tabindex = "-1" role = "dialog" aria-labelledby = "myModalLabel" aria-hidden = "true">
+	   <div class = "modal-dialog">
+		  <div class = "modal-content">
+			 <div class = "modal-header">
+				<button type = "button" class = "close" data-dismiss = "modal" aria-hidden = "true">
+					  &times;
+				</button>
+				<h4 class = "modal-title" id = "myModalLabel">
+				   Pro Football 2.0 Controls
+				</h4>
+			 </div>
+			 <div class = "modal-body">
+				<table style="width:100%">
+					<tr>
+						<td>Up Arrow</td>
+						<td>Move Forward</td> 
+					</tr>
+					<tr>
+						<td>Down Arrow</td>
+						<td>Move Backwards</td> 
+					</tr>
+					<tr>
+						<td>Left Arrow</td>
+						<td>Move Forward</td> 
+					</tr>
+					<tr>
+						<td>Down Arrow</td>
+						<td>Move Backwards</td> 
+					</tr>
+					<tr>
+						<td>Enter</td>
+						<td>Snap the Ball</td> 
+					</tr>
+					<tr>
+						<td>Space</td>
+						<td>Pass Ball</td> 
+					</tr>
+					<tr>
+						<td>K</td>
+						<td>Kick a Field Goal</td> 
+					</tr>
+				</table>				
+			 </div>
+			 <div class = "modal-footer">
+				<h5 style="left:10px; position:absolute;">Click on the map to enable keyboard input</h5>
+				<button type = "button" class = "btn btn-default" data-dismiss = "modal">
+				   Close
+				</button>
+			 </div>
+		  </div>
+	   </div>
+	</div>
+	<div class = "modal fade" id = "highScoresModal" tabindex = "-1" role = "dialog" aria-labelledby = "myModalLabel" aria-hidden = "true">
+	   <div class = "modal-dialog">
+		  <div class = "modal-content">
+			 <div class = "modal-header">
+				<button type = "button" class = "close" data-dismiss = "modal" aria-hidden = "true">
+					  &times;
+				</button>
+				<h4 class = "modal-title" id = "myModalLabel">All Time Records</h4>
+			 </div>
+			 <div class = "modal-body">
+				<table style="width:100%">
+					<thead>
+						<tr style="font-weight:bolder;">
+							<td>Record</td>
+							<td>Score</td>
+							<td>Player</td>
+							<td>Date</td> 
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td id="r1name">Most Points Scored</td>
+							<td id="r1score"></td>
+							<td id="r1player"></td>
+							<td id="r1date"></td>
+						</tr>
+						<tr>
+							<td id="r2name">Fewest Points Allowed</td>
+							<td id="r2score"></td>
+							<td id="r2player"></td>
+							<td id="r2date"></td>
+						</tr>
+						<tr>
+							<td id="r3name">Largest Margin of Victory</td>
+							<td id="r3score"></td>
+							<td id="r3player"></td>
+							<td id="r3date"></td>
+						</tr>
+						<tr>
+							<td id="r4name">Most Rushing TDs</td>
+							<td id="r4score"></td>
+							<td id="r4player"></td>
+							<td id="r4date"></td>
+						</tr>
+						<tr>
+							<td id="r5name">Most Passing TDs</td>
+							<td id="r5score"></td>
+							<td id="r5player"></td>
+							<td id="r5date"></td>
+						</tr>
+						<tr>
+							<td id="r6name">Most Total Yards Gained</td>
+							<td id="r6score"></td>
+							<td id="r6player"></td>
+							<td id="r6date"></td> 
+						</tr>
+						<tr>
+							<td id="r7name">Most Rushing Yards Gained</td>
+							<td id="r7score"></td>
+							<td id="r7player"></td>
+							<td id="r7date"></td>
+						</tr>
+						<tr>
+							<td id="r8name">Most Passing Yards Gained</td>
+							<td id="r8score"></td>
+							<td id="r8player"></td>
+							<td id="r8date"></td>
+						</tr>
+						<tr>
+							<td id="r9name">Highest Yards Per Rush</td>
+							<td id="r9score"></td>
+							<td id="r9player"></td>
+							<td id="r9date"></td>
+						</tr>
+						<tr>
+							<td id="r10name">Highest Yards Per Pass</td>
+							<td id="r10score"></td>
+							<td id="r10player"></td>
+							<td id="r10date"></td>
+						</tr>
+						<tr>
+							<td id="r20name">Most Rushing Attempts</td>
+							<td id="r20score"></td>
+							<td id="r20player"></td>
+							<td id="r20date"></td>
+						</tr>
+						<tr>
+							<td id="r21name">Most Passing Attempts</td>
+							<td id="r21score"></td>
+							<td id="r21player"></td>
+							<td id="r21date"></td>
+						</tr>
+						<tr>
+							<td id="r22name">Most Completions</td>
+							<td id="r22score"></td>
+							<td id="r22player"></td>
+							<td id="r22date"></td>
+						</tr>
+						<tr>
+							<td id="r11name">Highest Completion Percentage</td>
+							<td id="r11score"></td>
+							<td id="r11player"></td>
+							<td id="r11date"></td>
+						</tr>
+						<tr>
+							<td id="r12name">Longest Run</td>
+							<td id="r12score"></td>
+							<td id="r12player"></td>
+							<td id="r12date"></td>
+						</tr>
+						<tr>
+							<td id="r13name">Longest Pass</td>
+							<td id="r13score"></td>
+							<td id="r13player"></td>
+							<td id="r13date"></td> 
+						</tr>
+						<tr>
+							<td id="r14name">Fewest Interceptions Thrown</td>
+							<td id="r14score"></td>
+							<td id="r14player"></td>
+							<td id="r14date"></td>
+						</tr>
+						<tr>
+							<td id="r15name">Fewest Sacks Allowed</td>
+							<td id="r15score"></td>
+							<td id="r15player"></td>
+							<td id="r15date"></td>
+						</tr>
+						<tr>
+							<td id="r16name">Most Field Goals</td>
+							<td id="r16score"></td>
+							<td id="r16player"></td>
+							<td id="r16date"></td>
+						</tr>
+						<tr>
+							<td id="r17name">Longest Field Goal</td>
+							<td id="r17score"></td>
+							<td id="r17player"></td>
+							<td id="r17date"></td>
+						</tr>
+						<tr>
+							<td id="r23name">Most Kick Return Yards</td>
+							<td id="r23score"></td>
+							<td id="r23player"></td>
+							<td id="r23date"></td>
+						</tr>
+						<tr>
+							<td id="r24name">Highest Yards Per Return</td>
+							<td id="r24score"></td>
+							<td id="r24player"></td>
+							<td id="r24date"></td>
+						</tr>
+						<tr>
+							<td id="r25name">Most Kick Return Touchdowns</td>
+							<td id="r25score"></td>
+							<td id="r25player"></td>
+							<td id="r25date"></td>
+						</tr>
+						<tr>
+							<td id="r26name">Longest Kick Return</td>
+							<td id="r26score"></td>
+							<td id="r26player"></td>
+							<td id="r26date"></td>
+						</tr>
+						<tr>
+							<td id="r18name">Most First Downs</td>
+							<td id="r18score"></td>
+							<td id="r18player"></td>
+							<td id="r18date"></td>
+						</tr>
+						<tr>
+							<td id="r19name">Most Fourth Downs Converted</td>
+							<td id="r19score"></td>
+							<td id="r19player"></td>
+							<td id="r19date"></td>
+						</tr>
+					</tbody>
+				</table>
+			 </div>
+			 <div class = "modal-footer">
+				<h5 style="left:10px; position:absolute;">Click on the map to enable keyboard input</h5>
+				<button type = "button" class = "btn btn-default" data-dismiss = "modal">
+				   Close
+				</button>
+			 </div>
+		  </div>
+	   </div>
+	</div>
+		<div class = "modal fade" id = "rulesModal" tabindex = "-1" role = "dialog" aria-labelledby = "myModalLabel" aria-hidden = "true">
+	   <div class = "modal-dialog">
+		  <div class = "modal-content">
+			 <div class = "modal-header">
+				<button type = "button" class = "close" data-dismiss = "modal" aria-hidden = "true">
+					  &times;
+				</button>
+				<h4 class = "modal-title" id = "myModalLabel">How to Play Pro Football 2.0</h4>
+			 </div>
+			 <div class = "modal-body">
+				<div class="panel panel-default">
+					<div class="panel-heading headingStyle">Goal of the Game</div>
+					<div class="panel-body">
+						<p id="gameGoal"></p>
+					</div>
+					<div class="panel-heading headingStyle">Role of the Player</div>
+					<div class="panel-body">
+						<p id="playerRole"></p>
+					</div>
+					<div class="panel-heading headingStyle">The Wide Receiver</div>
+					<div class="panel-body">
+						<p id="receiverRole"></p>
+					</div>
+					<div class="panel-heading headingStyle">The Defenders</div>
+					<div class="panel-body">
+						<p id="defenderRole"></p>
+					</div>
+					<div class="panel-heading headingStyle">The Gameclock</div>
+					<div class="panel-body">
+						<p id="clockRole"></p>
+					</div>
+					<div class="panel-heading headingStyle">Scoring System</div>
+					<div class="panel-body">
+						<p id="scoringSystem"></p>
+					</div>
+				</div>
+			 </div>
+			 <div class = "modal-footer">
+				<h5 style="left:10px; position:absolute;">Click on the map to enable keyboard input</h5>
+				<button type = "button" class = "btn btn-default" data-dismiss = "modal">
+				   Close
+				</button>
+			 </div>
+		  </div>
+	   </div>
+	</div>
+	<div class="modal fade" id="playerNameModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" 
+					   data-dismiss="modal">
+						   <span aria-hidden="true">&times;</span>
+						   <span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="myModalLabel">
+						Welcome to Pro Football 2.0!
+					</h4>
+				</div>
+				
+				<div class="modal-body">
+					<form role="form">
+					  <div class="form-group">
+						<label for="playerNameInput">Enter Player Name</label>
+						  <input type="text" class="form-control"
+							  id="playerNameInput" placeholder="Player Name"/>
+					  </div>
+					</form>
+				</div>
+				
+				<div class="modal-footer">
+					<button type="button" id="beginGameBtn" data-dismiss="modal" class="btn btn-primary">
+						Kickoff!
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="recordScoreModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" 
+					   data-dismiss="modal">
+						   <span aria-hidden="true">&times;</span>
+						   <span class="sr-only">Close</span>
+					</button>
+					<h4 class="modal-title" id="myModalLabel">
+						New High Score!
+					</h4>
+				</div>
+				
+				<div class="modal-body">
+					<div id="newRecordModalDiv"></div>
+				</div>
+				
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-primary">
+						Close
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>
