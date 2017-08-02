@@ -1,7 +1,7 @@
 # Pro Football 2.0
 
 ## About
-When I was a kid one of my prized possessions was a 1978 handheld Matell Pro Football 2. It had originally been my dad's but he had passed it down to me when once I was old enough to appreciate it. It was a deceptively simple approximation of football that included running, passing, interceptions and kicking. I spent many, many hours with that thing. Recently I got a hankering to play it once again but to my dismay could not find it anywhere. I then checked ebay to see if I could find one. To my dismay all the copies I could find were between $75 and $150. I didn't think I could justify spending that sort of money in order to experience a little nostalgia. If I could not find my copy and could not afford to buy another copy I decided to do the next best thing, recreate the game in JavaScript!
+When I was a kid one of my prized possessions was a 1978 handheld Matell Pro Football 2. It had originally been my dad's but he had passed it down to me when once I was old enough to appreciate it. It was a deceptively simple approximation of football that included running, passing, interceptions and kicking. I spent many, many hours with that thing. Recently I got a hankering to play it once again but to my dismay could not find it anywhere. I then checked ebay and Amazon to see if I could find one. However they cost more than I was wiling to pay just to experience a little nostalgia. If I could not find my copy and could not afford to buy another copy I decided to do the next best thing, recreate the game in JavaScript!
 
 ![This is where an GIF should be. Sorry you can't see it. Try using Chrome](media/gameplay.gif "Pro Football 2.0 gameplay")
 
