@@ -7,24 +7,24 @@ define (["js/tokens/ball.js", "js/tokens/lb.js", "js/tokens/player.js", "js/util
 			this.kickReturn = false;
 			this.kickReturnDefense = [];
 		}
-		
+
 		addKickoffTokens() {
 			this.ball = new Ball(this.game.tiles[1][3], this.game);
-			this.kickingTeam = [new LB(this.game.tiles[0][0], "", "LB"), new LB(this.game.tiles[1][0], "", "K"), new LB(this.game.tiles[2][0], "", "LB")];
+			this.kickingTeam = [new LB(this.game.tiles[0][0], "", "LB"), new LB(this.game.tiles[1][1], "", "K"), new LB(this.game.tiles[2][0], "", "LB")];
 		}
-		
+
 		addFieldGoalTokens() {
 			this.ball = new Ball(this.game.tiles[1][7], this.game);
 			this.kickingTeam = [new LB(this.game.tiles[1][9], "", "K"), new LB(this.game.tiles[0][5], "", "OL"), new LB(this.game.tiles[1][5], "", "OL"), new LB(this.game.tiles[2][5], "", "OL")];
 		}
-		
+
 		getKickoffDistance() {
 			return Math.floor(Math.random() * 35) - 9;
 		}
-		
+
 		addRandomDefender(index) {
 			var success = false;
-			while(success == false) { 
+			while(success == false) {
 				var y = Math.floor(Math.random() * 3);
 				var x = Math.floor(Math.random() * 10);
 				if(this.game.checkOccupiedTiles(this.game.tiles[y][x].id, Enums.tokenEnum.defender) == Enums.tileEnum.open){
@@ -34,24 +34,24 @@ define (["js/tokens/ball.js", "js/tokens/lb.js", "js/tokens/player.js", "js/util
 				}
 			}
 		}
-		
+
 		kickoffBall() {
 			this.game.stats.setScoreboardLabels("--", "--", "Opp 35");
 			this.kickReturn = true;
 			this.kickReturnDefense = [];
 			this.kickoffAnimation();
 		}
-		
+
 		kickFieldGoal() {
 			setTimeout(this.fieldGoalAnimation, 2000);
 		}
-		
+
 		removeKickingTeam() {
 			for(var i = 0; i < this.kickingTeam.length; i++) {
 				this.kickingTeam[i].removeElement(this.kickingTeam[i].element);
 			}
 		}
-		
+
 		fieldGoalAnimation() {
 			(function(kickoff){
 				var intervalID = setInterval(function() {
@@ -65,7 +65,7 @@ define (["js/tokens/ball.js", "js/tokens/lb.js", "js/tokens/player.js", "js/util
 				}, 1000);
 			}(this));
 		}
-		
+
 		kickoffAnimation() {
 			(function(kickoff){
 				var intervalID = setInterval(function() {
@@ -81,7 +81,7 @@ define (["js/tokens/ball.js", "js/tokens/lb.js", "js/tokens/player.js", "js/util
 				}, 1000);
 			}(this));
 		}
-		
+
 		kickBall(param) {
 			(function(kickoff){
 				if(param == "second") {
