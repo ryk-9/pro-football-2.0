@@ -5,8 +5,8 @@ Class used to manage the game clock
 define ([],function() {
 	return class Clock {
 		constructor() {
-			//Quarter length is set to 6 minutes by default
-			this.quarterLength = 360;
+			//Quarter length is set to 1 minute 30 seconds by default
+			this.quarterLength = 150;
 			this.timeRemaining = this.quarterLength;
 			this.createTimeLabel();
 			this.gameOver = false;
